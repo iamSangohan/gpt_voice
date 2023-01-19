@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -72,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
+              style: const TextStyle(fontFamily: 'Ubuntu'),
               // If listening is active show the recognized words
               speech.isListening
                   ? '$_text'
