@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -74,7 +74,12 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              style: const TextStyle(fontFamily: 'Ubuntu'),
+              style: const TextStyle(
+                fontFamily: 'Ubuntu',
+                fontSize: 20.0,
+                color: Colors.black,
+                fontWeight: FontWeight.w400,
+              ),
               // If listening is active show the recognized words
               speech.isListening
                   ? '$_text'
@@ -83,16 +88,23 @@ class _MyHomePageState extends State<MyHomePage> {
                   // recognition is not yet ready or not supported on
                   // the target device
                   : _speaking
-                      ? 'Tap the microphone to start listening...'
-                      : 'Speech not available',
+                      ? 'Appuyer le micro pour parler...'
+                      : 'Parole non disponible',
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: speech.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(speech.isNotListening ? Icons.mic_off : Icons.mic),
+      floatingActionButton: AvatarGlow(
+        glowColor: Theme.of(context).primaryColor,
+        endRadius: 75.0,
+        duration: const Duration(milliseconds: 2000),
+        repeatPauseDuration: const Duration(milliseconds: 100),
+        repeat: true,
+        child: FloatingActionButton(
+          onPressed: speech.isNotListening ? _startListening : _stopListening,
+          tooltip: 'Listen',
+          child: Icon(speech.isNotListening ? Icons.mic_off : Icons.mic),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
