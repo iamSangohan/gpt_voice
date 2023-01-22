@@ -81,38 +81,40 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
+        elevation: 0.0,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              style: const TextStyle(
-                fontFamily: 'Ubuntu',
-                fontSize: 20.0,
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
+            Container(
+              padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
+              margin: const EdgeInsets.only(bottom: 150),
+              child: Text(
+                style: const TextStyle(
+                  fontFamily: 'Ubuntu',
+                  fontSize: 24.0,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w600,
+                ),
+                // If listening is active show the recognized words
+                speech.hasRecognized
+                    ? '$_text'
+                    // If listening isn't active but could be tell the user
+                    // how to start it, otherwise indicate that speech
+                    // recognition is not yet ready or not supported on
+                    // the target device
+                    : _speaking
+                        ? 'Appuyer le micro et commencer à parler...'
+                        : 'Parole non disponible',
               ),
-              // If listening is active show the recognized words
-              speech.isListening
-                  ? '$_text'
-                  // If listening isn't active but could be tell the user
-                  // how to start it, otherwise indicate that speech
-                  // recognition is not yet ready or not supported on
-                  // the target device
-                  : _speaking
-                      ? 'Appuyer le micro pour parler...'
-                      : 'Parole non disponible',
             ),
           ],
         ),
       ),
-      floatingActionButton: AvatarGlow(
-        glowColor: Theme.of(context).primaryColor,
-        endRadius: 75.0,
-        duration: const Duration(milliseconds: 2000),
-        repeatPauseDuration: const Duration(milliseconds: 100),
-        repeat: true,
+      floatingActionButton: CircleAvatar(
+        radius: 35.0,
         child: FloatingActionButton(
           onPressed: speech.isNotListening ? _startListening : _stopListening,
           tooltip: 'Listen',
