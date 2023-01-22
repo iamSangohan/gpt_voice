@@ -48,7 +48,20 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _startListening() async {
-    await speech.listen(onResult: _onSpeechResult);
+    await speech.listen(
+      onResult: _onSpeechResult,
+      // listenFor: Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 3),
+      partialResults: true,
+      // localeId: _currentLocaleId,
+      // onSoundLevelChange: soundLevelListener,
+      cancelOnError: true,
+      listenMode: stt.ListenMode.confirmation,
+      // onDevice: _onDevice,
+    );
+
+    // Ajout d'un délai de 3 secondes avant de cacher le texte reconnu
+
     setState(() {});
   }
 
@@ -57,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
-  void _onSpeechResult(SpeechRecognitionResult result) {
+  void _onSpeechResult(SpeechRecognitionResult result) async {
     setState(() {
       _text = result.recognizedWords;
     });
