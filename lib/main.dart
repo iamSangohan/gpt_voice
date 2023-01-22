@@ -113,8 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      floatingActionButton: CircleAvatar(
-        radius: 35.0,
+      floatingActionButton: AvatarGlow(
+        glowColor: Theme.of(context).primaryColor,
+        endRadius: 75.0,
+        duration: const Duration(milliseconds: 2000),
+        repeatPauseDuration: const Duration(milliseconds: 100),
+        repeat: true,
         child: FloatingActionButton(
           onPressed: speech.isNotListening ? _startListening : _stopListening,
           tooltip: 'Listen',
