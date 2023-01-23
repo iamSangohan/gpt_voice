@@ -34,7 +34,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  bool _speaking = false;
+  bool isSpeaking = false;
   String _text = '';
 
   void initState() {
@@ -43,37 +43,29 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _initSpeech() async {
-    _speaking = await speech.initialize();
+    isSpeaking = await speech.initialize();
     setState(() {});
   }
 
   void _startListening() async {
-    await speech.listen(
-      onResult: _onSpeechResult,
-      // listenFor: Duration(seconds: 30),
-      pauseFor: const Duration(seconds: 3),
-      partialResults: true,
-      // localeId: _currentLocaleId,
-      // onSoundLevelChange: soundLevelListener,
-      cancelOnError: true,
-      listenMode: stt.ListenMode.confirmation,
-      // onDevice: _onDevice,
-    );
-
-    // Ajout d'un délai de 3 secondes avant de cacher le texte reconnu
-
-    setState(() {});
+    var available = await speech.initialize();
+    if (available) {
+      setState(() {
+        isSpeaking = true;
+        speech.listen(
+          onResult: (result) {
+            setState(() {
+              _text = result.recognizedWords;
+            });
+          },
+        );
+      });
+    }
   }
 
   void _stopListening() async {
     await speech.stop();
     setState(() {});
-  }
-
-  void _onSpeechResult(SpeechRecognitionResult result) async {
-    setState(() {
-      _text = result.recognizedWords;
-    });
   }
 
   @override
@@ -88,28 +80,43 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
-              margin: const EdgeInsets.only(bottom: 150),
-              child: Text(
-                style: const TextStyle(
-                  fontFamily: 'Ubuntu',
-                  fontSize: 24.0,
-                  color: Colors.black,
-                  fontWeight: FontWeight.w600,
+            SingleChildScrollView(
+              reverse: true,
+              physics:  const BouncingScrollPhysics(),
+              child: Container(
+                alignment: Alignment.center,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.7,
+                padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
+                margin: const EdgeInsets.only(bottom: 150),
+                child: Text(
+                  style: const TextStyle(
+                    fontFamily: 'Ubuntu',
+                    fontSize: 24.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  // If listening is active show the recognized words
+                  speech.hasRecognized
+                      ? '$_text'
+                      // If listening isn't active but could be tell the user
+                      // how to start it, otherwise indicate that speech
+                      // recognition is not yet ready or not supported on
+                      // the target device
+                      : isSpeaking
+                          ? 'Appuyer le micro et commencer à parler...'
+                          : 'Parole non disponible',
                 ),
-                // If listening is active show the recognized words
-                speech.hasRecognized
-                    ? '$_text'
-                    // If listening isn't active but could be tell the user
-                    // how to start it, otherwise indicate that speech
-                    // recognition is not yet ready or not supported on
-                    // the target device
-                    : _speaking
-                        ? 'Appuyer le micro et commencer à parler...'
-                        : 'Parole non disponible',
               ),
             ),
+            Text(
+              "Dev with ❤ by Sangohan",
+              style: const TextStyle(
+                fontSize: 10.0,
+                color: Colors.black,
+                fontWeight: FontWeight.w500,
+              ),
+            )
           ],
         ),
       ),
@@ -119,6 +126,8 @@ class _MyHomePageState extends State<MyHomePage> {
         duration: const Duration(milliseconds: 2000),
         repeatPauseDuration: const Duration(milliseconds: 100),
         repeat: true,
+        animate: isSpeaking,
+        showTwoGlows: true,
         child: FloatingActionButton(
           onPressed: speech.isNotListening ? _startListening : _stopListening,
           tooltip: 'Listen',
