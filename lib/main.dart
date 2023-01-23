@@ -108,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       // the target device
                       : isSpeaking
                           ? 'Appuyer le micro et commencer à parler...'
-                          : 'Parole non disponible',
+                          : '...',
                 ),
               ),
             ),
@@ -130,11 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
         duration: const Duration(milliseconds: 2000),
         repeatPauseDuration: const Duration(milliseconds: 100),
         repeat: true,
-        showTwoGlows: true,
         child: FloatingActionButton(
-          onPressed: speech.isNotListening ? _startListening : _stopListening,
-          tooltip: 'Listen',
-          child: Icon(speech.isNotListening ? Icons.mic_off : Icons.mic),
+          onPressed: _startListening,
+          child: Icon(isSpeaking ? Icons.mic : Icons.mic_none),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
