@@ -37,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isSpeaking = false;
   String _text = '';
 
+  @override
   void initState() {
     super.initState();
     _initSpeech();
@@ -65,7 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _stopListening() async {
     await speech.stop();
-    setState(() {});
+    setState(() {
+      isSpeaking = false;
+    });
   }
 
   @override
@@ -82,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             SingleChildScrollView(
               reverse: true,
-              physics:  const BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               child: Container(
                 alignment: Alignment.center,
                 width: MediaQuery.of(context).size.width,
@@ -109,9 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            Text(
+            const Text(
               "Dev with ❤ by Sangohan",
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10.0,
                 color: Colors.black,
                 fontWeight: FontWeight.w500,
@@ -121,12 +124,12 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: AvatarGlow(
+        animate: isSpeaking,
         glowColor: Theme.of(context).primaryColor,
         endRadius: 75.0,
         duration: const Duration(milliseconds: 2000),
         repeatPauseDuration: const Duration(milliseconds: 100),
         repeat: true,
-        animate: isSpeaking,
         showTwoGlows: true,
         child: FloatingActionButton(
           onPressed: speech.isNotListening ? _startListening : _stopListening,
