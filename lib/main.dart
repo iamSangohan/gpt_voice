@@ -35,41 +35,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   stt.SpeechToText speech = stt.SpeechToText();
   bool isSpeaking = false;
-  String _text = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _initSpeech();
-  }
-
-  void _initSpeech() async {
-    isSpeaking = await speech.initialize();
-    setState(() {});
-  }
-
-  void _startListening() async {
-    var available = await speech.initialize();
-    if (available) {
-      setState(() {
-        isSpeaking = true;
-        speech.listen(
-          onResult: (result) {
-            setState(() {
-              _text = result.recognizedWords;
-            });
-          },
-        );
-      });
-    }
-  }
-
-  void _stopListening() async {
-    await speech.stop();
-    setState(() {
-      isSpeaking = false;
-    });
-  }
+  String text = '';
 
   @override
   Widget build(BuildContext context) {
@@ -79,60 +45,77 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SingleChildScrollView(
+      body: Column(
+        children: [
+          SingleChildScrollView(
               reverse: true,
               physics: const BouncingScrollPhysics(),
               child: Container(
-                alignment: Alignment.center,
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.7,
-                padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
-                margin: const EdgeInsets.only(bottom: 150),
-                child: Text(
-                  style: const TextStyle(
-                    fontFamily: 'Ubuntu',
-                    fontSize: 24.0,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  // If listening is active show the recognized words
-                  speech.hasRecognized
-                      ? '$_text'
-                      // If listening isn't active but could be tell the user
-                      // how to start it, otherwise indicate that speech
-                      // recognition is not yet ready or not supported on
-                      // the target device
-                      : isSpeaking
-                          ? 'Appuyer le micro et commencer à parler...'
-                          : '...',
-                ),
-              ),
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0, vertical: 16.0),
+                  margin: const EdgeInsets.only(bottom: 150),
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      color: isSpeaking ? Colors.black : Colors.grey,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Ubuntu',
+                    ),
+                  ))),
+          const Text(
+            "Dev with ❤ by Sangohan",
+            style: TextStyle(
+              fontSize: 10.0,
+              color: Colors.black,
+              fontWeight: FontWeight.w500,
             ),
-            const Text(
-              "Dev with ❤ by Sangohan",
-              style: TextStyle(
-                fontSize: 10.0,
-                color: Colors.black,
-                fontWeight: FontWeight.w500,
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
       floatingActionButton: AvatarGlow(
-        animate: isSpeaking,
-        glowColor: Theme.of(context).primaryColor,
         endRadius: 75.0,
+        animate: isSpeaking,
         duration: const Duration(milliseconds: 2000),
+        glowColor: Colors.blue,
         repeatPauseDuration: const Duration(milliseconds: 100),
         repeat: true,
-        child: FloatingActionButton(
-          onPressed: _startListening,
-          child: Icon(isSpeaking ? Icons.mic : Icons.mic_none),
+        showTwoGlows: true,
+        child: GestureDetector(
+          onTapDown: (details) async {
+            if (!isSpeaking) {
+              var available = await speech.initialize();
+              if (available) {
+                setState(() {
+                  isSpeaking = true;
+                  speech.listen(
+                      onResult: (result) {
+                        setState(() {
+                          text = result.recognizedWords;
+                        });
+                      },
+                      pauseFor: const Duration(seconds: 10));
+                });
+              }
+            }
+          },
+          onTapUp: (details) {
+            setState(() {
+              isSpeaking = false;
+            });
+            speech.stop();
+          },
+          child: CircleAvatar(
+            backgroundColor: Colors.blue,
+            radius: 35,
+            child: Icon(
+              isSpeaking ? Icons.mic : Icons.mic_none,
+              color: Colors.white,
+            ),
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
