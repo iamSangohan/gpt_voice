@@ -1,6 +1,6 @@
 # gpt_voice
 
-A new Flutter project.
+A revolutionnary Flutter project, aiming to ease the use of OpenAI's leading service, ChatGPT by the use of vocal recognition.
 
 ## Getting Started
 
