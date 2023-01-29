@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
+import 'package:gpt_voice/api.dart';
+import 'package:gpt_voice/chat.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -34,8 +36,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  bool isSpeaking = false;
+  bool isListening = false;
   String text = '';
+
+  final List<ChatMessage> messages = [];
+
+  var scrollController = ScrollController();
+
+  scrollMethod() {
+    scrollController.animateTo(scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,40 +56,54 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      body: Column(
-        children: [
-          SingleChildScrollView(
-              reverse: true,
-              physics: const BouncingScrollPhysics(),
-              child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0, vertical: 16.0),
-                  margin: const EdgeInsets.only(bottom: 150),
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                      fontSize: 24.0,
-                      color: isSpeaking ? Colors.black : Colors.grey,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Ubuntu',
-                    ),
-                  ))),
-          const Text(
-            "Dev with ❤ by Sangohan",
-            style: TextStyle(
-              fontSize: 10.0,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
+      body: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                fontSize: 24.0,
+                color: isListening ? Colors.black : Colors.grey,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Ubuntu',
+              ),
             ),
-          )
-        ],
+            Expanded(
+                child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 12.0),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      controller: scrollController,
+                      shrinkWrap: true,
+                      itemCount: messages.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var chat = messages[index];
+                        return Chat(
+                          chatText: chat.text,
+                          type: chat.type,
+                        );
+                      },
+                    ))),
+            const Text(
+              "Dev with ❤ by Sangohan",
+              style: TextStyle(
+                fontSize: 10.0,
+                color: Colors.black,
+                fontWeight: FontWeight.w500,
+              ),
+            )
+          ],
+        ),
       ),
       floatingActionButton: AvatarGlow(
         endRadius: 75.0,
-        animate: isSpeaking,
+        animate: isListening,
         duration: const Duration(milliseconds: 2000),
         glowColor: Colors.blue,
         repeatPauseDuration: const Duration(milliseconds: 100),
@@ -86,39 +111,64 @@ class _MyHomePageState extends State<MyHomePage> {
         showTwoGlows: true,
         child: GestureDetector(
           onTapDown: (details) async {
-            if (!isSpeaking) {
+            if (!isListening) {
               var available = await speech.initialize();
               if (available) {
                 setState(() {
-                  isSpeaking = true;
+                  isListening = true;
                   speech.listen(
-                      onResult: (result) {
-                        setState(() {
-                          text = result.recognizedWords;
-                        });
-                      },
-                      pauseFor: const Duration(seconds: 10));
+                    onResult: (result) {
+                      setState(() {
+                        text = result.recognizedWords;
+                      });
+                    },
+                  );
                 });
               }
             }
           },
-          onTapUp: (details) {
+          onTapUp: (details) async {
             setState(() {
-              isSpeaking = false;
+              isListening = false;
             });
             speech.stop();
+
+            messages.add(ChatMessage(text: text, type: ChatMessageType.user));
+            var msg = await GPTApi.sendMessage(text);
+
+            setState(() {
+              messages.add(ChatMessage(text: msg, type: ChatMessageType.gpt));
+            });
           },
           child: CircleAvatar(
             backgroundColor: Colors.blue,
             radius: 35,
             child: Icon(
-              isSpeaking ? Icons.mic : Icons.mic_none,
+              isListening ? Icons.mic : Icons.mic_none,
               color: Colors.white,
             ),
           ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
+  Widget Chat({required String? chatText, required ChatMessageType? type}) {
+    return Container(
+      padding: EdgeInsets.all(12),
+      margin: EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text("$chatText",
+          style: TextStyle(
+            fontSize: 14.0,
+            color: Colors.white,
+            fontWeight: FontWeight.w400,
+            fontFamily: 'Ubuntu',
+          )),
     );
   }
 }
