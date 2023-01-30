@@ -8,16 +8,16 @@ class GPTApi {
 
   static Map<String, String> header = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer $api_key'
+    'charset': 'utf-8',
+    'Authorization': 'Bearer $api_key',
   };
 
   static sendMessage(String? message) async {
     var res = await http.post(Uri.parse(base_url),
         headers: header,
         body: jsonEncode({
-          "engine": "text-davinci-003",
+          "model": "text-davinci-003",
           "prompt": '$message',
-          "max_tokens": 5,
           "temperature": 0,
           'max_tokens': 100,
           "top_p": 1,

@@ -37,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   stt.SpeechToText speech = stt.SpeechToText();
   bool isListening = false;
-  String text = '';
+  var text = '';
 
   final List<ChatMessage> messages = [];
 
@@ -57,26 +57,23 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 0.0,
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
         child: Column(
           children: [
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 24.0,
-                color: isListening ? Colors.black : Colors.grey,
-                fontWeight: FontWeight.w500,
-                fontFamily: 'Ubuntu',
-              ),
-            ),
+            // Text(
+            //   text,
+            //   style: TextStyle(
+            //     fontSize: 24.0,
+            //     color: isListening ? Colors.black : Colors.grey,
+            //     fontWeight: FontWeight.w500,
+            //     fontFamily: 'Ubuntu',
+            //   ),
+            // ),
             Expanded(
                 child: Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16.0, vertical: 12.0),
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
+                    margin: const EdgeInsets.only(bottom: 100.0),
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
                       controller: scrollController,
@@ -156,16 +153,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget Chat({required String? chatText, required ChatMessageType? type}) {
     return Container(
-      padding: EdgeInsets.all(12),
-      margin: EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(5),
+        color: type == ChatMessageType.gpt ? Colors.grey[200] : Colors.white,
+        borderRadius: BorderRadius.circular(10),
       ),
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 8),
       child: Text("$chatText",
           style: TextStyle(
-            fontSize: 14.0,
-            color: Colors.white,
+            fontSize: 18.0,
+            color: type == ChatMessageType.gpt ? Colors.black : Colors.grey,
             fontWeight: FontWeight.w400,
             fontFamily: 'Ubuntu',
           )),
