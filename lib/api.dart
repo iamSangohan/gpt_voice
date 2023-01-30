@@ -28,6 +28,7 @@ class GPTApi {
 
     if (res.statusCode == 200) {
       var data = jsonDecode(res.body.toString());
+      print(data);
       var msg = data['choices'][0]['text'];
       return msg;
     } else {
