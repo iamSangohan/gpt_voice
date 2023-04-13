@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-String api_key = "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";
+String api_key = "";
 
 class GPTApi {
   static String base_url = "https://api.openai.com/v1/completions";
